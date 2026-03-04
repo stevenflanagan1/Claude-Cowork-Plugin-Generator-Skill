@@ -1,6 +1,6 @@
 # Claude Cowork Plugin Generator Skill
 
-**By [The AI Impact](https://theaiimpact.com)**
+**By [The AI Impact]**
 
 A free Claude skill that turns any workflow description into a complete, ready-to-build Cowork plugin spec — in one conversation. No coding. No tech experience needed.
 
