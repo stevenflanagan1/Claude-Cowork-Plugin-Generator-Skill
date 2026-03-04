@@ -1,0 +1,28 @@
+{
+  "name": "claude-cowork-plugin-generator-skill",
+  "display_name": "Plugin Blueprint Builder",
+  "version": "1.0.0",
+  "description": "Interview a user about their workflow or role and generate a complete Claude plugin (Project) specification — including system prompt, recommended skills, connectors, triggers, and example use cases. Use this skill whenever someone wants to build a custom Claude plugin, set up a Claude Project for a specific job function, automate a workflow with Claude, or asks 'how do I set up Claude for my work.' This skill does the diagnostic work so the user ends up with a ready-to-use blueprint they can implement immediately.",
+  "author": {
+    "name": "The AI Impact",
+    "url": "https://theaiimpact.com"
+  },
+  "skills": [
+    {
+      "path": "SKILL.md",
+      "trigger": "Help me build a plugin blueprint for my workflow"
+    }
+  ],
+  "keywords": [
+    "plugin",
+    "blueprint",
+    "workflow",
+    "cowork",
+    "project-setup",
+    "system-prompt",
+    "connectors",
+    "automation"
+  ],
+  "repository": "https://github.com/stevenflanagan1/Claude-Cowork-Plugin-Generator-Skill",
+  "license": "free"
+}
