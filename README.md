@@ -106,9 +106,10 @@ The AI Impact is a practical AI education platform for non-technical professiona
 
 No hype. No jargon. Just tools that actually work.
 
-- TikTok: [@theaiimpact](#)
-- YouTube: [The AI Impact](#)
-- LinkedIn: [The AI Impact](#)
+- TikTok: [@theaiimpact](https://www.tiktok.com/@theaiimpact)
+- YouTube: [The AI Impact](https://www.youtube.com/@the-ai-impact)
+- Instagram: [@theaiimpact](https://www.instagram.com/theaiimpact/)
+- Threads: [@theaiimpact](https://www.threads.com/@theaiimpact)
 
 ---
 
