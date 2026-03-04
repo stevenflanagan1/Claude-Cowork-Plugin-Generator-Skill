@@ -84,7 +84,7 @@ Once you have your Blueprint:
 6. Run the 5 test prompts from your Blueprint to validate it works
 
 **Want the full step-by-step guide?**
-→ [Download the free Build Your Custom Cowork Plugin Guide](#) *(link coming soon)*
+→ [Download the free Build Your Custom Cowork Plugin Guide](#) *(https://docs.google.com/document/d/1Qkv4tGYC9D18K1ctopdkcMdyM317p-hI/edit#heading=h.dd5z79bnlgdd)*
 
 ---
 
