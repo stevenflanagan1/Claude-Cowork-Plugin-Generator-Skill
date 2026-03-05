@@ -1,359 +1,452 @@
 ---
 name: plugin-blueprint-builder
-description: Interview a user about their workflow or role and generate a complete Claude Cowork plugin specification — including skills folder content, slash commands, MCP connector config, context files, and approval gates. Use this skill whenever someone wants to build a custom Cowork plugin, automate a workflow with Claude, or asks "how do I set up Claude for my work." Also use when someone says "help me build a plugin," "create a custom Claude setup," "I want Claude to help me with [workflow]," or "what connectors should I use." This skill produces a ready-to-hand-to-Plugin-Create Blueprint so the user can build their plugin immediately — no coding required.
+description: Interview a user about their workflow or role and generate a complete Claude Cowork plugin specification — including skills folder content, slash commands, MCP connector config, context files, and approval gates. Use this skill whenever someone wants to build a custom Cowork plugin, automate a workflow with Claude, or asks "how do I set up Claude for my work." Also use when someone says "help me build a plugin," "create a custom Claude setup," "I want Claude to help me with [workflow]," or "what connectors should I use." This skill produces tiered Blueprint options (Starter, Connected, Advanced) so the user can choose the right level of complexity and hand it straight to Plugin Create — no coding required.
 ---
 
 # Plugin Blueprint Builder
 
-Turn any workflow or role description into a complete, ready-to-build Claude Cowork plugin specification.
+Turn any workflow description into a complete, tiered Claude Cowork plugin specification — with options from beginner to fully automated.
 
 ## What This Skill Does
 
-Runs a structured interview with the user to understand their workflow, tools, and goals — then generates a complete Plugin Blueprint covering every component of a Cowork plugin: skills, slash commands, MCP connectors, context files, and approval gates.
+Runs a structured two-round interview to deeply understand the user's workflow, then:
+1. Proactively suggests what's possible based on their workflow type — before asking them to choose
+2. Presents three tiered Blueprint options: Starter, Connected, and Advanced
+3. Generates a complete Blueprint for whichever tier they choose
 
-The Blueprint is designed to be handed directly to Plugin Create (Claude's built-in plugin builder in Cowork) so the user can build their plugin immediately through a guided conversation — no coding, no manual file editing.
-
-The output is not advice. It is a complete spec document ready to implement.
+The user doesn't need to know what connectors, skills, or MCP servers exist. This skill brings that intelligence. The output is a complete spec ready to hand to Plugin Create — no coding, no technical knowledge required.
 
 ---
 
 ## What Is a Cowork Plugin
 
-Before generating the Blueprint, understand what you are designing. A Cowork plugin is a folder of plain text files that turns Claude into a specialist for a specific workflow. It has four core components:
+A Cowork plugin is a folder of plain text files that turns Claude into a specialist for a specific workflow. Four components:
 
 **Skills** (`skills/skill-name/SKILL.md`)
-Domain knowledge Claude draws on automatically when the context is relevant. Skills are always-on — the user doesn't trigger them manually. A skill file teaches Claude how to do something: your brand voice rules, your platform-specific content format, your workflow process, your industry knowledge.
+Always-on domain knowledge Claude draws on automatically. Teaches Claude your process, your voice, your rules, your platform formats. Claude reads the right skill files when they're relevant — the user never has to trigger them manually.
 
 **Commands** (`commands/command-name.md`)
-Specific actions the user triggers manually with a slash command (e.g. `/draft`, `/ideate`, `/review`). Commands are for discrete, repeatable tasks where the user decides when to run them.
+Slash commands the user triggers manually for specific repeatable tasks (e.g. `/research`, `/draft`, `/deliver`). Each command produces a predictable, specific output.
 
 **MCP Connectors** (`.mcp.json`)
-The tools Claude connects to — Gmail, Notion, Google Drive, Slack, HubSpot, and hundreds more via the Model Context Protocol. Connectors let Claude read from and take actions in the user's actual tools during a Cowork session.
+Live connections to external tools — Notion, Gmail, HubSpot, Ahrefs, Apify, Snowflake, and thousands more via the Model Context Protocol. Connectors let Claude read from and act in real tools during a session, not just work from what the user pastes in.
 
 **Manifest** (`.claude-plugin/plugin.json`)
-The label on the package. Tells Cowork the plugin's name, version, and where to find everything else.
+The label that tells Cowork the plugin's name, version, and where to find everything.
 
-Plugin Create (a built-in Cowork plugin) builds all of these files automatically through a conversation. The Blueprint this skill generates is the input to that conversation.
+Plugin Create (a built-in Cowork plugin) builds all files automatically through conversation. The Blueprint this skill generates is the input to that conversation.
 
 ---
 
 ## Phase 1: Interview
 
-Run the interview in a single conversational message. Do NOT ask questions one at a time — present all questions together so the user can answer in one go. Frame it as quick and low-effort.
+Two rounds. Round 1 gets the big picture. Round 2 drills into every detail needed to build a complete, specific plugin. The goal is to understand the workflow so thoroughly that you could build the plugin yourself without asking another question.
 
-### Opening Message (use this exactly):
+You are acting as a business analyst doing a workflow discovery session — not collecting form responses.
+
+---
+
+### Round 1 — Workflow Overview
+
+Send as a single conversational message:
 
 > **Let's build your Plugin Blueprint.**
 >
-> Answer these 7 questions and I'll generate a complete spec for your custom Cowork plugin — including which skills to create, which tools to connect, what slash commands to set up, and example prompts to test it with. Then you can hand the Blueprint straight to Plugin Create and build it in minutes.
+> I'll ask about your workflow in two quick rounds, then show you what's possible — including a simple starter version and a more powerful automated version with your tools connected. You pick the level that's right for you.
 >
 > ---
 >
-> **1. What's your role or job title?**
-> *(e.g. "Freelance Copywriter", "Social Media Manager", "E-commerce founder", "Marketing Consultant")*
+> **1. What's your role?**
+> *(e.g. "Freelance copywriter", "Social media manager", "Marketing consultant", "E-commerce founder")*
 >
-> **2. What's the ONE workflow you want this plugin to handle?**
-> *(Be specific about the full flow — e.g. "Every week I find trending topics, turn them into LinkedIn posts and TikTok scripts, then schedule them" or "I receive client briefs by email, write copy, send for approval, then publish")*
+> **2. Walk me through the workflow you want this plugin to handle — step by step, from when you start to when it's done.**
+> *(Don't worry about being technical. Just describe what you actually do, in order. Include the manual and repetitive parts — those are exactly what we're looking to improve.)*
 >
-> **3. What tools or apps are part of this workflow right now?**
-> *(List everything you touch — e.g. Gmail, Notion, Google Drive, Slack, Asana, Canva, HubSpot, Airtable. The more you list, the better Claude can connect to them directly.)*
+> **3. What does the finished output look like, and where does it need to end up?**
+> *(e.g. "Scripts saved to Notion and emailed to me", "A client proposal sent via Gmail", "A published blog post")*
 >
-> **4. What does the INPUT to this workflow usually look like?**
-> *(e.g. "A client brief in a Google Doc", "Raw notes from a voice memo", "A URL or article I want to react to", "A trending topic I spotted")*
->
-> **5. What does the finished OUTPUT need to be?**
-> *(e.g. "A ready-to-post LinkedIn carousel", "A TikTok script with hook", "A client email draft", "A summary with action items saved to Notion")*
->
-> **6. How often do you do this, and what slows you down most?**
-> *(e.g. "Daily — I waste 45 mins going from idea to first draft" or "Weekly — the bottleneck is repurposing one piece into 3 formats")*
->
-> **7. What tone, style, or rules must Claude always follow?**
-> *(e.g. "Direct and punchy, no corporate speak", "Always match my brand voice", "Never publish without my approval", "Platform rules: TikTok needs a hook in 2 seconds, LinkedIn no hashtags")*
+> **4. What slows you down the most right now?**
 
 ---
 
-## Phase 2: Generate the Blueprint
+### Round 2 — Deep Discovery
 
-Once the user answers, generate the Plugin Blueprint using the template below. Fill in every section based on their answers. Do not leave placeholders — make real decisions and write real content.
+After Round 1, analyse their answers carefully. Send targeted follow-up questions based specifically on what they said. Do not send generic questions — every probe must reference something they actually mentioned.
 
-If any answers are vague, make a reasonable assumption and note it with: *(assumption — update if needed)*
+Use these frameworks to identify gaps. Only probe what wasn't already answered:
 
-**Critical rules for this Blueprint:**
-- This is a Cowork plugin spec, NOT a Claude Project spec. Never use the words "Project Instructions" or "Project Knowledge" — use "skills folder" and "skill files" instead.
-- Always recommend MCP connectors for any tool the user mentioned. Do not skip connectors because they require setup — explain the setup is one minute.
-- Always generate at least 4 skills and 4 slash commands for any workflow with multiple steps or outputs.
-- Web search is a built-in Cowork capability — recommend it as a connector for any workflow involving research, trend monitoring, or external data.
+**Every manual step → connector opportunity**
+For each step they described as manual (searching, browsing, copying, checking, reviewing):
+- Where exactly is this coming from? A website, platform, email, file, database?
+- How do you find it — do you search, or does it come to you?
+- How long does this take?
+- What would instant look like?
+
+*"I scroll TikTok for trending content" = Apify MCP. "I check YouTube" = YouTube MCP. "I read newsletters" = Web Search + Gmail. "I pull from my CRM" = HubSpot or Salesforce MCP. Never let a manual research or retrieval step stay manual if a connector can replace it.*
+
+**Every input source → connector opportunity**
+- Where does every piece of raw material come from?
+- Is it already digital — in a doc, email, platform, database?
+- Does anyone send inputs to you, or do you gather everything yourself?
+
+**Every output destination → connector opportunity**
+- Where does each output need to land when finished?
+- Does anything get sent, published, or saved somewhere specific?
+- Does it need to match a specific format or template?
+
+**Human-in-the-loop moments → approval gates**
+- Where do you need to review or approve before it continues?
+- Has anything ever gone wrong in this workflow?
+- Where would a mistake be most expensive or embarrassing?
+
+**Platform and format rules → skill files**
+- If outputs go to multiple platforms, what are the rules for each?
+- What should Claude never do or say in this context?
+- Do you have a tone, voice, or style it needs to match?
+- Are there templates the output must follow?
+
+**Repetition and variation → command design**
+- How often does this workflow run?
+- Does it always start the same way or does the trigger vary?
+- Which parts are always identical vs which parts change each time?
+
+**Connected systems → indirect connectors**
+- What other tools does this workflow touch, even indirectly?
+- Is there anything you check before starting — a calendar, dashboard, spreadsheet?
+- Does this workflow feed into anything else downstream?
 
 ---
 
-### Output Template
+### When to Stop Probing
 
-Use this exact structure when generating the Blueprint:
+Stop when you can confidently answer all of these:
+- [ ] Every data/content source is identified
+- [ ] Every output destination is identified
+- [ ] Every manual step is mapped to a potential connector or automation
+- [ ] Every review/approval moment is identified
+- [ ] All platform and format rules are captured
+- [ ] What "done" looks like is clear
+
+If any are uncertain, ask one more targeted follow-up. Do not generate a Blueprint from incomplete information.
+
+---
+
+## Phase 2: Proactive Suggestions + Tier Options
+
+Before generating the Blueprint, show the user what's possible for their specific workflow. This is where the skill brings its own intelligence — not just mapping what the user said, but proposing what they didn't know to ask for.
+
+Send a message in this format:
+
+> **Here's what I can see for your workflow.**
+>
+> Based on what you've described, here's what's possible — from a simple setup you can use today, to a fully connected version that handles the heavy lifting automatically.
+>
+> **The biggest opportunities I can see:**
+> [2–3 sentences identifying the highest-value automations specific to their situation. Name specific connectors, skills, and time savings. E.g. "The biggest win here is connecting Apify to pull live TikTok trend data automatically — that replaces 45 minutes of manual scrolling. Adding Notion means every output saves itself without copy-paste. Your brand voice and each platform's format rules each need their own skill file so Claude never needs re-briefing."]
+>
+> ---
+>
+> **Choose your build level:**
+>
+> 🟢 **Starter — Skills + Commands only**
+> No connectors to set up. Works immediately after install.
+> What it does: [Specific to their workflow — e.g. "Claude knows your brand voice and platform rules. You paste in a topic, run /draft, and get a TikTok script and LinkedIn post ready to review."]
+> What you still do manually: [Honest list — e.g. "Find trending topics yourself, copy outputs to Notion, send your own summary email"]
+> Time saved: [Honest estimate — e.g. "~1.5 hours/week on writing and reformatting"]
+> Setup time: Under 5 minutes
+>
+> 🔵 **Connected — Starter + [2–3 specific native connectors]**
+> What it adds: [Specific to their workflow — e.g. "Notion saves all outputs automatically. Gmail sends you a weekly summary with links. No copy-paste."]
+> What you still do manually: [Honest list — e.g. "Find trending topics yourself"]
+> Time saved: [Honest estimate — higher than Starter]
+> Setup time: ~10 minutes (OAuth login for each tool)
+>
+> 🚀 **Advanced — Connected + [specific MCP connectors]**
+> What it adds: [Specific to their workflow — e.g. "Apify pulls trending TikTok videos by hashtag automatically. YouTube MCP finds top-performing videos on your topic. One command kicks off the full pipeline — research, scripts, repurpose, save, email."]
+> What you still do manually: [Should be very short — e.g. "Pick the topic from the ranked list, approve scripts before delivery"]
+> Time saved: [Honest estimate — highest]
+> Setup time: ~20 minutes (includes MCP server setup — step-by-step in the Blueprint)
+>
+> ---
+> **Which level do you want the full Blueprint for?**
+> *(Start with Starter if you want to get going today — your skills and commands carry straight over when you upgrade)*
+
+---
+
+## Phase 3: Generate the Blueprint
+
+Once the user selects a tier, generate the complete Blueprint. Fill every section with real, specific content — no placeholders. Make real decisions. If anything is vague, assume and note it with *(assumption — update if needed)*.
+
+**Non-negotiable rules:**
+- Never say "Project Instructions", "Project Knowledge", or "system prompt" — say "skill files", "skills folder", "plugin purpose"
+- One skill file per distinct platform, output type, or domain area — never collapse what should be separate
+- Starter: skills + commands + Web Search only
+- Connected: skills + commands + Web Search + 2–4 native connectors
+- Advanced: skills + commands + Web Search + native + MCP stack
+- Every manual step from the interview must be addressed — automated via connector or covered by a gate
+- Always include an Upgrade Path section showing exactly what to add to reach the next tier
+
+---
+
+### Blueprint Template
 
 ```
 ═══════════════════════════════════════════
 CLAUDE COWORK PLUGIN BLUEPRINT
-Generated for: [Role from Q1]
-Workflow: [Task from Q2]
+For: [Role]
+Workflow: [Workflow name]
+Tier: [🟢 Starter | 🔵 Connected | 🚀 Advanced]
 ═══════════════════════════════════════════
 
 ## 1. PLUGIN NAME
-[Short, descriptive name — e.g. "AI Content Pipeline" or "Client Email Manager"]
+[Short descriptive name]
 
-## 2. PLUGIN PURPOSE (for Plugin Create)
-[Write 3–5 sentences describing what this plugin does, who it's for, and what problem it solves. This is what you paste to Plugin Create when it asks what you want to build. Write it in plain English — not technical language.]
+## 2. PLUGIN PURPOSE
+[3–5 sentences in plain English. Paste this to Plugin Create to start the build.]
 
 ## 3. SKILLS TO CREATE
-[Generate 3–6 skill files. For multi-platform or multi-step workflows, each major area gets its own skill. Skills are always-on — Claude draws on them automatically when relevant.]
-
-For each skill:
+[One file per distinct area. Do not combine platform rules, brand voice, research process, or output formats.]
 
 **Skill: [skill-folder-name]**
-File location: `skills/[skill-folder-name]/SKILL.md`
-Purpose: [What domain knowledge or process this skill encodes]
-Always active when: [What context or task triggers Claude to use this skill]
-What to put in it: [Specific content to include — e.g. "Your brand voice rules, tone examples, words to avoid, platform-specific formatting rules for TikTok, LinkedIn, and Threads"]
-Example that activates it: "[A real example prompt that would trigger this skill]"
-
-[Minimum skills to include based on workflow type:
-- Content/marketing workflows: brand-voice skill + one skill per platform/output type + trend-research skill
-- Client-facing workflows: communication-style skill + deliverable-format skill + client-context skill
-- Operations workflows: process-rules skill + template skill + output-format skill
-- Research workflows: research-methodology skill + synthesis-format skill + source-evaluation skill]
+File: `skills/[skill-folder-name]/SKILL.md`
+What it teaches Claude: [Specific domain knowledge]
+Fires automatically when: [Context that triggers this skill]
+What to put in it: [Exact content to paste — specific, not generic]
+Test prompt: "[Real prompt that activates this skill]"
 
 ## 4. SLASH COMMANDS
-[Generate 4–6 commands scaled to workflow complexity. Commands are manually triggered by the user for specific, repeatable tasks.]
-
-For each command:
+[Minimum 4. Cover full arc: research → create → repurpose → review. Add delivery command if connectors included.]
 
 **/[command-name]**
 What it does: [One sentence]
-How to use it: [e.g. "/draft [paste your brief or topic here]"]
-What Claude outputs: [Specific, concrete description of the output]
-Which skills it uses: [Which skill files Claude draws on when this command runs]
+How to use: [e.g. "/draft [paste topic here]"]
+Output: [Specific description of what Claude produces]
+Skills used: [Which skill files]
+Connectors used: [Which live tools — Advanced tier only]
 
-[Always include:
-- At least one "research or gather input" command (e.g. /trends, /research, /brief)
-- At least one "create or draft" command (e.g. /draft, /write, /create)  
-- At least one "repurpose or adapt" command (e.g. /repurpose, /adapt, /reformat)
-- At least one "review or refine" command (e.g. /review, /refine, /edit)
-- Optional: a "save or organise" command if Notion/Drive connectors are included]
+## 5. CONNECTORS
+[Starter: omit this section. Connected: native only. Advanced: native + MCP.]
 
-## 5. MCP CONNECTORS (.mcp.json)
-[This is the most important section for Cowork. List every connector needed based on the tools from Q3. Always specify type and setup method.]
-
-**How connectors work in Cowork:**
-- 🟢 Native connectors: Enable in Settings → Connectors with one click (OAuth login)
-- 🔵 MCP connectors: Add in Settings → Connectors → "Add custom connector" → paste the MCP server URL (takes ~1 minute)
-- Plugin Create will write the .mcp.json file automatically when you tell it which tools to connect
-
-For each connector:
-
-**[Tool Name]** · [🟢 Native | 🔵 MCP]
-Why it's needed: [Specific reason based on their workflow]
-What Claude will do with it: [Concrete actions — e.g. "Read your content calendar, create new entries when a draft is approved"]
+**[Tool Name]** · [🟢 Native | 🔵 MCP | ⚡ Built-in]
+Why it's needed: [Specific to this workflow]
+What Claude does with it: [Concrete actions — not "connects to" but what it actually does]
 Priority: [Essential / Recommended / Optional]
-Setup: [For Native: "Enable in Settings → Connectors" | For MCP: include server URL or where to find it]
+Setup: [Native: "Settings → Connectors → Connect" | MCP: URL + instructions]
 
-[Standard connector recommendations by workflow type:
-- Content/social media: Google Drive 🟢 (store scripts/assets), Notion 🟢 (content calendar), Gmail 🟢 (brand comms), Web Search (built-in, trend research)
-- Client services: Gmail 🟢 (client comms), Google Drive 🟢 (briefs/deliverables), Notion 🟢 (project tracking), Slack 🟢 (team comms)
-- Sales/BD: HubSpot 🔵 or Salesforce 🔵 (CRM), Gmail 🟢 (outreach), Notion 🟢 (pipeline notes), Google Drive 🟢 (proposals)
-- Operations: Notion 🟢 (SOPs/docs), Asana 🟢 (tasks), Gmail 🟢 (comms), Google Drive 🟢 (files)
+## 6. APPROVAL GATES
+[Only for publishing, client delivery, multi-step dependencies, or brand/legal sensitivity. Skip for internal low-stakes work.]
 
-Always recommend Web Search as a connector for any workflow involving research, trends, or external information — it is built into Cowork and requires no setup.]
+**Gate [N]: [Checkpoint name]**
+Triggers when: [Exact moment]
+Claude should: [Exactly what to show/say before pausing]
+You're checking for: [What to review]
+Add to skill file: "[Exact paste-ready instruction]"
 
-**No connector available for a tool they mentioned?**
-→ Check if Zapier 🟢 (Native) can bridge it
-→ If not: "No direct connector available — paste content from [tool] directly into your Cowork chat"
+## 7. WHAT TO ADD TO YOUR SKILL FILES
+[Exact content for each skill file — specific, not generic.]
 
-## 6. CONTEXT FILES FOR SKILL FOLDERS
-[Tell the user exactly what content to add to each skill file to maximise output quality. This replaces the generic "upload files" advice — in Cowork, context lives inside the skill files themselves, not in a separate knowledge base.]
+**[Skill name]:** [Exactly what to paste and why — e.g. "3–5 sentences that sound like you, words you use vs avoid, one example of output you're proud of"]
 
-For each skill from Section 3, specify what real-world content to paste into it:
+> 💡 Rough notes work fine. Half a page of bullets beats a polished document you never write.
 
-**For [skill-name]:**
-Paste in: [Specific content — e.g. "Your brand voice rules: 3–5 sentences that sound like you, a list of words you use vs words to avoid, your tone description in plain English"]
-Also add: [Secondary content — e.g. "2–3 examples of content you've written that you're proud of — Claude will use these to match your style"]
-Optional: [Nice-to-have content]
-
-> 💡 Rough notes work fine. A half-page of bullet points about your brand voice beats a polished document you never write. Add context now, refine it later.
-
-## 7. HOW TO BUILD THIS PLUGIN
-[Plain-English instructions for using Plugin Create to turn this Blueprint into an actual plugin. Always include this section.]
-
-You don't need to create any files manually. Plugin Create does all of it.
-
-**Step 1:** Open Claude Desktop → switch to the Cowork tab
-**Step 2:** Go to Customize → Browse plugins → find and install Plugin Create
-**Step 3:** Launch Plugin Create (type /plugin-create or click + → Plugin Create)
-**Step 4:** When Plugin Create asks what you want to build, paste Section 2 (Plugin Purpose) from this Blueprint
-**Step 5:** When it asks about skills, paste Section 3
-**Step 6:** When it asks about commands, paste Section 4
-**Step 7:** When it asks about connectors/tools, paste Section 5
-**Step 8:** Plugin Create builds all the files and delivers a .plugin file to your outputs folder
-**Step 9:** Install it via Customize → Browse plugins → Upload plugin
-**Step 10:** Run the test prompts from Section 9 to confirm everything works
-
-## 8. APPROVAL GATES
-[Only include this section if the workflow involves: publishing content publicly, sending to clients, multi-step workflows where step 2 depends on step 1, or brand/legal sensitivity. Skip for purely internal workflows and explain why.]
-
-These are moments where Claude should stop and wait for your sign-off before continuing. Add these as instructions inside the relevant skill files.
-
-**Gate [N]: [Checkpoint Name]**
-Triggers when: [What moment in the workflow]
-Claude should: [Exactly what to say/show before pausing]
-You're checking for: [What to review at this moment]
-Add this to your skill file: "[Exact instruction text to paste into the skill file]"
-
-> ⚠️ If this plugin publishes or sends anything publicly or to clients, Gate 1 (draft review before delivery) is non-negotiable. One wrong send costs more time than the review ever would.
+## 8. HOW TO BUILD THIS
+1. Open Claude Desktop → Cowork tab
+2. Customize → Browse plugins → install Plugin Create
+3. Launch Plugin Create
+4. Paste Section 2 (Plugin Purpose) when asked what you want to build
+5. Feed each section as Plugin Create asks for it
+6. Receive .plugin file in your outputs folder
+7. Install via Customize → Browse plugins → Upload plugin
+8. Run the test prompts below
+9. Refine, test, improve — it gets better every time you run it
 
 ## 9. TEST PROMPTS
-[Write 5 specific prompts the user can paste immediately after installing to verify the plugin works. Make them real and specific to their workflow — not generic. At least one tests a slash command, one tests a connector, one tests an approval gate if included.]
+[5 specific prompts for their exact workflow.]
 
-Use these in order after installing:
-
-1. [Tests that skills are active and tone is correct]
+1. [Tests skills are active and tone is correct]
 2. [Tests a slash command end-to-end]
-3. [Tests that a connector is pulling real data]
-4. [Tests a multi-step workflow]
-5. [Tests an approval gate, if applicable — or tests a second slash command]
+3. [Tests connector pulling live data — or tests second command if Starter]
+4. [Tests multi-step workflow]
+5. [Tests approval gate — or tests refinement loop]
 
-## 10. WHAT TO BUILD NEXT
-[1–3 sentences. One specific upgrade once the core plugin is running — an additional skill, a new connector, a scheduled task, or a refinement to the approval gates.]
+## 10. UPGRADE PATH
+[Starter → Connected: exactly what to add and what it unlocks]
+[Connected → Advanced: exactly what to add and what it unlocks]
+[Advanced: one natural next extension]
 
 ═══════════════════════════════════════════
 READY TO BUILD?
-→ Open Claude Desktop → Cowork tab → install Plugin Create → paste this Blueprint
-→ Full step-by-step guide: https://github.com/stevenflanagan1/Claude-Cowork-Plugin-Generator-Skill
+→ Claude Desktop → Cowork tab → Plugin Create → paste Section 2
+→ Full guide: https://github.com/stevenflanagan1/Claude-Cowork-Plugin-Generator-Skill
 ═══════════════════════════════════════════
 ```
 
 ---
 
-## Phase 3: Offer to Refine
+## Phase 4: Offer to Refine
 
-After delivering the Blueprint, say:
-
-> **Your Plugin Blueprint is ready.**
+> **Your Blueprint is ready.**
 >
-> Copy Section 2 (Plugin Purpose) and paste it to Plugin Create in Cowork to start building. If anything doesn't look right — missing a tool, wrong commands, needs a different focus — just tell me and I'll update the Blueprint before you build.
+> Paste Section 2 into Plugin Create to start building. If anything's off — wrong tier, missing a tool, needs different commands — tell me and I'll update it before you build.
 >
-> Need the step-by-step build guide? → https://github.com/stevenflanagan1/Claude-Cowork-Plugin-Generator-Skill
+> Want to upgrade later? Your skills and commands carry straight over — you just add connectors.
+>
+> Full build guide → https://github.com/stevenflanagan1/Claude-Cowork-Plugin-Generator-Skill
 
 ---
 
-## Writing Rules for the Blueprint
+## Reference Library: Common Skills by Workflow Type
 
-**Skills quality standards:**
-- Each skill should have a clear, specific name that describes what it knows (not what it does)
-- Good skill names: `brand-voice`, `tiktok-content-rules`, `client-communication-style`, `trend-research-process`
-- Bad skill names: `helper`, `main-skill`, `writing`
-- Tell the user exactly what real-world content to paste into each skill — not just "add your brand voice" but "paste 3–5 sentences that sound like you, your tone rules, words you use vs avoid"
-- Skills for content workflows should always be platform-specific when the workflow involves multiple platforms
+Use this to proactively suggest skills the user didn't mention. Every workflow type has predictable skill needs.
 
-**Slash command standards:**
-- Commands should feel like natural shortcuts for the most repeated actions
-- Name them intuitively — `/draft`, `/ideate`, `/trends`, `/review`, `/repurpose`, `/brief`, `/respond`
-- Each command must have a clear, predictable output the user can describe in one sentence
-- Always cover the full workflow arc: research → create → repurpose → review
-- Scale to complexity: 4 commands minimum for any multi-step workflow, up to 6 for complex multi-tool workflows
+### Content & Social Media
+| Skill | What it encodes |
+|-------|----------------|
+| `brand-voice` | Tone rules, words to use/avoid, example copy, what sounds like you vs what doesn't |
+| `tiktok-content` | Hook in 2 seconds, 30–60s target, retention structure, pattern interrupt, CTA format |
+| `linkedin-content` | Punchy opener, no hashtag spam, conversational not corporate, practical takeaway |
+| `threads-content` | Short, opinionated, one idea, hot take not press release, 500 char max |
+| `youtube-content` | Retention structure, chapter format, thumbnail angle, SEO title rules |
+| `trend-research` | Editorial filter for what's worth covering, cross-platform validation, angle potential |
+| `script-angles` | Framework for generating 2+ distinct angles from one topic (contrarian, story, tutorial) |
+| `content-repurposing` | Rules for adapting one piece across platforms without feeling copy-pasted |
 
-**MCP connector standards:**
-- Never recommend zero connectors for a workflow that involves external tools
-- Always explain what Claude will specifically DO with each connector — not just that it "connects"
-- Prioritise Native connectors (easier) but never skip MCP connectors just because they need setup
-- Web Search is free and built in — always recommend it for research/trend workflows
-- For every tool the user mentioned with no connector, explicitly suggest Zapier as a bridge
+### Client Services & Freelance
+| Skill | What it encodes |
+|-------|----------------|
+| `client-communication` | Tone for client emails, how to handle scope questions, what to never say |
+| `proposal-writing` | Structure, pricing language, how to frame deliverables, what to include/exclude |
+| `project-management` | Status update format, how to flag issues, client-facing vs internal language |
+| `deliverable-standards` | Quality checklist, format requirements, what "done" means for each output type |
+| `onboarding-process` | What new clients receive, in what order, how to set expectations |
 
-**Approval gate standards:**
-- Only include when output is published, sent to clients, or has multi-step dependencies
-- Each gate instruction must be a literal, paste-ready sentence for the skill file — not a description
-- Name gates for the moment they occur, not the action (e.g. "Draft Review" not "Check the draft")
-- Scale: 1–2 gates for simple publish workflows, 3–4 for complex client-facing multi-step workflows
-- The ⚠️ warning is mandatory for any public or client-facing workflow
+### Sales & Business Development
+| Skill | What it encodes |
+|-------|----------------|
+| `prospect-research` | What to look for, where to find it, how to qualify, ICP definition |
+| `outreach-writing` | Tone, personalisation approach, what to reference, length, CTA |
+| `objection-handling` | Common objections and how to respond, what not to say |
+| `follow-up-sequences` | Timing, tone escalation, when to stop, what each message should achieve |
+| `crm-hygiene` | What fields to update, when, in what format |
 
-**Cowork-specific language rules:**
-- Never say "Project Instructions" — say "skill files" or "skills folder"
-- Never say "Project Knowledge" — say "context in your skill files"  
-- Never say "system prompt" to the user — say "plugin purpose" or "how Claude is briefed"
-- Always refer to Plugin Create as the build tool, not manual file creation
-- The output goes to a .plugin file the user installs — always mention this
+### Operations & Admin
+| Skill | What it encodes |
+|-------|----------------|
+| `meeting-notes` | What to capture, format, how to identify action items, who gets what |
+| `report-writing` | Structure, what to include per audience, how to handle bad news |
+| `sop-documentation` | How to write a process so someone else can follow it, format standards |
+| `email-triage` | How to categorise, what needs response, what to flag, what to archive |
+
+### Research & Analysis
+| Skill | What it encodes |
+|-------|----------------|
+| `research-methodology` | How to evaluate sources, what makes something credible, how to synthesise |
+| `competitive-analysis` | What to compare, how to present findings, what signals matter |
+| `data-interpretation` | How to read outputs, what to highlight, how to explain to non-technical audiences |
 
 ---
 
-## Available Connectors Reference
+## Reference Library: Connector Use Cases
 
-**🟢 NATIVE** = One-click in Settings → Connectors. Verified by Anthropic.
-**🔵 MCP** = Settings → Connectors → "Add custom connector" → paste MCP URL. ~1 minute setup.
-**⚡ BUILT-IN** = Available in Cowork by default, no setup needed.
+Use this to suggest specific connectors based on what the user described — even if they didn't mention the tool by name.
 
-### Always-Available (Built-in to Cowork)
-| Capability | Type | Best for |
-|-----------|------|----------|
-| Web Search | ⚡ Built-in | Trend research, current events, competitor analysis, fact-checking |
-| Local File Access | ⚡ Built-in | Reading/writing files on the user's computer |
+**🟢 NATIVE** = One-click OAuth in Settings → Connectors
+**🔵 MCP** = Settings → Connectors → Add custom connector → paste URL (~1 min)
+**⚡ BUILT-IN** = No setup, available in every Cowork session
 
-### Productivity & Project Management
-| Connector | Type | Best for |
-|-----------|------|----------|
-| Asana | 🟢 Native | Task creation, project tracking, status updates |
-| Notion | 🟢 Native | Docs, wikis, content calendars, project notes |
-| Atlassian Rovo | 🟢 Native | Jira tickets, Confluence docs |
-| Linear | 🟢 Native | Engineering issue tracking |
-| Zapier | 🟢 Native | Bridge to any tool without a direct connector |
-| Box | 🟢 Native | Cloud file storage |
+### Research & Data Gathering
+| Connector | Type | What it actually does |
+|-----------|------|-----------------------|
+| Web Search | ⚡ Built-in | Finds trending topics, news, competitor content, facts in real time — no setup ever |
+| Apify | 🔵 MCP | Scrapes TikTok trending videos by hashtag, Instagram posts, Reddit threads, LinkedIn posts — replaces manual scrolling entirely. URL: `https://mcp.apify.com/sse?token=YOUR_API_KEY` |
+| YouTube | 🔵 MCP | Searches trending videos by keyword, pulls titles, view counts, descriptions, transcripts |
+| Ahrefs | 🟢 Native | Pulls keyword volume, rankings, competitor content, backlink data into any content or SEO workflow |
+| SimilarWeb | 🟢 Native | Competitive traffic data, audience insights, channel breakdown |
+| Amplitude | 🟢 Native | Pulls product usage and user behaviour metrics into analysis or reporting workflows |
 
-### Communication & Email
-| Connector | Type | Best for |
-|-----------|------|----------|
-| Gmail | 🟢 Native | Email drafting, thread summaries, sending |
-| Google Calendar | 🟢 Native | Scheduling, meeting prep |
-| Slack | 🟢 Native | Team comms, message drafting, channel summaries |
-| Microsoft 365 | 🟢 Native | Outlook, Teams, SharePoint |
+### Storage & Delivery
+| Connector | Type | What it actually does |
+|-----------|------|-----------------------|
+| Notion | 🟢 Native | Creates new pages, updates databases, reads content calendars, saves structured outputs — no copy-paste |
+| Google Drive | 🟢 Native | Reads input docs and briefs, saves finished outputs, creates new files automatically |
+| Gmail | 🟢 Native | Sends summary emails, drafts client replies, reads incoming briefs, delivers finished work |
+| Google Calendar | 🟢 Native | Checks availability, creates events, reads meeting context for prep notes |
+| Slack | 🟢 Native | Posts updates to channels, reads thread context, sends outputs to teammates |
+| WordPress | 🟢 Native | Publishes finished posts directly — no CMS login required |
 
-### Files & Knowledge
-| Connector | Type | Best for |
-|-----------|------|----------|
-| Google Drive | 🟢 Native | Read/write docs, store outputs, access assets |
-| Dropbox | 🔵 MCP | Cloud file access |
+### CRM & Sales
+| Connector | Type | What it actually does |
+|-----------|------|-----------------------|
+| HubSpot | 🔵 MCP | Reads contact and deal data to personalise outreach, updates records, pulls pipeline status |
+| Salesforce | 🔵 MCP | Pulls account history and deal context, updates opportunity fields, reads activity logs |
+| Apollo | 🟢 Native | Searches prospects by ICP, pulls contact info and company data for outreach |
+| Clay | 🟢 Native | Enriches lead lists from multiple sources, builds personalised outreach sequences |
+| Outreach | 🟢 Native | Manages sequences, logs activity, updates prospect status |
 
-### Design & Content
-| Connector | Type | Best for |
-|-----------|------|----------|
-| Canva | 🟢 Native | Social graphics, visual content |
-| Gamma | 🟢 Native | Slide decks, documents |
-| Figma | 🟢 Native | Design files |
-| WordPress.com | 🟢 Native | Blog publishing |
+### Data & Finance
+| Connector | Type | What it actually does |
+|-----------|------|-----------------------|
+| Snowflake | 🔵 MCP | Queries data warehouse in plain English — no SQL needed |
+| Stripe | 🔵 MCP | Reads revenue data, subscription status, transaction history for reporting |
+| FactSet | 🟢 Native | Real-time market data, fundamentals, earnings estimates for financial workflows |
 
-### Sales, Marketing & CRM
-| Connector | Type | Best for |
-|-----------|------|----------|
-| HubSpot | 🔵 MCP | CRM, deals, email sequences |
-| Salesforce | 🔵 MCP | Pipeline, accounts, reporting |
-| ActiveCampaign | 🟢 Native | Email marketing automation |
-| Ahrefs | 🟢 Native | SEO research, keyword data |
-| Amplitude | 🟢 Native | Product analytics |
+### Project Management
+| Connector | Type | What it actually does |
+|-----------|------|-----------------------|
+| Asana | 🟢 Native | Creates tasks, updates project status, reads what's due this week |
+| Linear | 🟢 Native | Creates issues, updates sprint status, reads engineering context |
+| Atlassian | 🟢 Native | Reads Jira tickets and Confluence docs, creates issues, updates boards |
 
-### Developer & Data
-| Connector | Type | Best for |
-|-----------|------|----------|
-| GitHub | 🔵 MCP | Code review, PRs, repo management |
-| Snowflake | 🔵 MCP | Data warehouse queries |
-| Stripe | 🔵 MCP | Payment data, subscriptions |
+### Design & Creation
+| Connector | Type | What it actually does |
+|-----------|------|-----------------------|
+| Canva | 🟢 Native | Creates social graphics and presentations from templates |
+| Gamma | 🟢 Native | Builds slide decks and documents from structured outlines |
 
 ### Automation Bridges
-| Connector | Type | Best for |
-|-----------|------|----------|
-| Zapier | 🟢 Native | 6,000+ app automations |
-| Make | 🔵 MCP | Visual workflow automation |
+| Connector | Type | What it actually does |
+|-----------|------|-----------------------|
+| Zapier | 🟢 Native | Bridges any tool without a direct connector — 6,000+ apps |
+| Make | 🔵 MCP | Visual workflow automation across any tool stack |
+
+**No connector for a tool they mentioned?**
+→ Check Zapier first
+→ Search mcp.so or glama.ai/mcp/servers for a community MCP server
+→ If nothing: "No direct connector yet — paste content from [tool] directly into Cowork chat"
 
 ---
 
-## Tone for This Skill
+## Tier Decision Guide
+
+**🟢 Starter always includes:**
+- All relevant skill files (brand voice, platform rules, process knowledge, output formats)
+- 4–6 slash commands covering the full workflow arc
+- Web Search (always available, no setup)
+- Approval gates in skill files if workflow involves publishing or client delivery
+- No connector setup required
+
+**🔵 Connected adds:**
+- Notion (if any output needs saving or organising)
+- Gmail (if outputs need sending or inputs arrive by email)
+- Google Drive (if inputs come from docs or outputs need filing)
+- Slack (if team communication is part of the workflow)
+- Maximum 3–4 connectors — keep setup under 10 minutes total
+
+**🚀 Advanced adds:**
+- Apify (if any manual social media research is involved)
+- YouTube MCP (if video research or trend monitoring is involved)
+- Ahrefs (if SEO or content performance is part of the workflow)
+- HubSpot or Salesforce (if CRM data is part of any step)
+- Snowflake (if analytics or reporting is involved)
+- Any MCP connector that replaces a manual research or data retrieval step
+- Approval gates reviewed and tightened for fuller automation
+
+---
+
+## Tone
 
 - Direct and practical — no fluff
-- The Blueprint should feel like it was written specifically for them, not generated
-- Avoid technical jargon — the audience is non-technical professionals
-- Every section must feel immediately actionable
-- When in doubt, be more specific — a vague recommendation helps no one
+- The Blueprint should feel written specifically for them, not generated from a template
+- Non-technical language throughout — the audience is solopreneurs, freelancers, and professionals, not developers
+- Tier suggestions should feel exciting and specific — show concrete time savings, not abstract features
+- Every section must be immediately actionable
